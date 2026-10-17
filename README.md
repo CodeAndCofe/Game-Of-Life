@@ -24,19 +24,19 @@ Neighbors are the 8 surrounding cells. Out-of-bounds neighbors are ignored.
 From the repository root:
 
 ```bash
-gcc -Wall -Wextra -Werror /home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/main.c -o /home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/gameoflife
+gcc -Wall -Wextra -Werror main.c -o gameoflife
 ```
 
 ## Run
 
 ```bash
-/home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/gameoflife <width> <height> <iterations>
+./gameoflife <width> <height> <iterations>
 ```
 
 Example:
 
 ```bash
-printf 'xdddsss' | /home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/gameoflife 10 6 5
+printf 'xdddsss' | ./gameoflife 10 6 5
 ```
 
 ## Input behavior (stdin)
