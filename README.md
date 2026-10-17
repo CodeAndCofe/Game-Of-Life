@@ -7,10 +7,6 @@ This program:
 - runs the simulation for a fixed number of generations,
 - prints the final grid to stdout.
 
-## Project structure
-
-- `/home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/main.c` — full program implementation
-
 ## Rules used
 
 Each cell is either dead (`0`) or alive (`1`). For every generation:
