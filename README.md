@@ -1,119 +1,84 @@
 # Game of Life
 
-This project is an implementation of **Conway's Game of Life**, a cellular automaton that simulates how a population of cells evolves over time.
+A small C implementation of Conway's Game of Life created as a 42 exam-style exercise.
 
-It was part of a **42 exam**. I liked this exercise because it is a simple but interesting concept: with only a few rules, a small grid can create complex and unexpected patterns.
+This program:
+- builds an initial grid from stdin keystrokes,
+- runs the simulation for a fixed number of generations,
+- prints the final grid to stdout.
 
-## How the Game Works
+## Project structure
 
-The game is played on a grid. Each position on the grid contains either:
+- `/home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/main.c` — full program implementation
 
-- `.` — a dead cell
-- `O` — a live cell
+## Rules used
 
-For every generation, the program checks the eight neighboring positions around each cell and applies these rules:
+Each cell is either dead (`0`) or alive (`1`). For every generation:
 
-1. A live cell with fewer than two live neighbors dies from underpopulation.
-2. A live cell with two or three live neighbors survives.
-3. A live cell with more than three live neighbors dies from overpopulation.
-4. A dead cell with exactly three live neighbors becomes alive.
+1. A live cell with fewer than 2 live neighbors dies.
+2. A live cell with 2 live neighbors survives.
+3. A live cell with 3 live neighbors survives.
+4. A live cell with more than 3 live neighbors dies.
+5. A dead cell with exactly 3 live neighbors becomes alive.
 
-All cells are evaluated for the next generation based on the previous generation. This is important because changing cells immediately while scanning the grid can produce incorrect results.
+Neighbors are the 8 surrounding cells. Out-of-bounds neighbors are ignored.
 
-## How I Wrote the Code
+## Build
 
-The implementation is organized around the main steps of the simulation:
+From the repository root:
 
-1. Read or create the initial grid.
-2. Store the current state of every cell.
-3. Count the live neighbors for each cell.
-4. Apply the Game of Life rules.
-5. Build the next generation.
-6. Display the updated grid.
-7. Repeat the process for the required number of generations.
-
-The most important part is the neighbor-counting logic. For each cell, the code checks the surrounding positions using row and column offsets:
-
-```text
-(-1, -1)  (-1, 0)  (-1, 1)
-( 0, -1)  current  ( 0, 1)
-( 1, -1)  ( 1, 0)  ( 1, 1)
+```bash
+gcc -Wall -Wextra -Werror /home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/main.c -o /home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/gameoflife
 ```
 
-When a neighboring position is outside the grid, it is ignored. This allows the program to safely handle cells on the borders.
+## Run
 
-A separate next grid is useful because every decision must use the old generation. After all cells have been processed, the next grid becomes the current grid.
-
-## Example Patterns
-
-### Still Life: Block
-
-This pattern does not change because each live cell has exactly three neighbors and each dead cell around it has fewer than three neighbors:
-
-```text
-....
-.OO.
-.OO.
-....
+```bash
+/home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/gameoflife <width> <height> <iterations>
 ```
 
-### Oscillator: Blinker
+Example:
 
-A blinker changes between a horizontal and vertical line:
-
-```text
-.O.
-.O.
-.O.
+```bash
+printf 'xdddsss' | /home/runner/work/Game-Of-Life/Game-Of-Life/gameoflife/gameoflife 10 6 5
 ```
 
-After one generation:
+## Input behavior (stdin)
 
-```text
-...
-OOO
-...
-```
+The program reads stdin one byte at a time before simulation starts.
 
-After another generation, it returns to the vertical form.
+- `w` move cursor up
+- `s` move cursor down
+- `a` move cursor left
+- `d` move cursor right
+- `x` toggle pen mode on/off
 
-### A Few Lines of Code
+Details:
+- Cursor starts at `(0, 0)`.
+- Movement is clamped to grid bounds.
+- While pen mode is ON, the current cursor cell is set alive after each processed input character.
 
-The core decision for a cell can be represented with logic like this:
+This means stdin is used to "draw" the initial live cells.
 
-```c
-if (cell_is_alive && (neighbors == 2 || neighbors == 3))
-    next_cell = ALIVE;
-else if (!cell_is_alive && neighbors == 3)
-    next_cell = ALIVE;
-else
-    next_cell = DEAD;
-```
+## Output behavior
 
-The neighbor counter follows the surrounding positions and only counts cells that are alive:
+After running all iterations, the program prints only the final generation:
 
-```c
-for (int row_offset = -1; row_offset <= 1; row_offset++)
-{
-    for (int col_offset = -1; col_offset <= 1; col_offset++)
-    {
-        if (row_offset == 0 && col_offset == 0)
-            continue;
+- live cell: `o`
+- dead cell: space (` `)
+- one newline per row
 
-        /* Check the neighboring position and count live cells. */
-    }
-}
-```
+## Implementation notes
 
-## What I Learned
+- Uses variable-length arrays sized from CLI arguments:
+  - `int map[height][width]`
+  - `int temp[height][width]`
+- Uses a second grid (`temp`) so each generation is computed from the previous state.
+- Neighbor counting is done by scanning relative offsets `[-1..1]` for row/column and skipping `(0, 0)`.
 
-This exam exercise helped me practice:
+## Current limitations
 
-- Working with two-dimensional grids.
-- Handling boundaries safely.
-- Separating the current state from the next state.
-- Breaking a problem into small functions.
-- Testing a program with simple patterns.
-- Understanding how simple rules can produce complex behavior.
-
-The Game of Life was a nice concept for a 42 exam because the rules are easy to understand, but implementing them correctly requires careful thinking about memory, indexing, and the order in which the simulation is updated.
+- No argument validation beyond requiring 3 arguments.
+- Non-numeric or invalid sizes/iteration values are not handled explicitly.
+- Very large dimensions can cause stack issues because grids are stack-allocated.
+- The program does not display intermediate generations; only the final state is printed.
